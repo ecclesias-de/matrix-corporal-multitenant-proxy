@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "mcmtp.basename" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "mcmtp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.mcmtp.deployment.replicas }}
+  selector:
+    matchLabels: {{- include "mcmtp.matchLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels: {{- include "mcmtp.labels" . | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/mcmtp/secret.yaml") . | sha256sum }}
+    spec:
+      serviceAccount: {{ .Values.serviceAccount }}
+      {{- define "mcmtp.podSecurityContext" }}
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      {{- end }}
+      {{- include "mcmtp.podSecurityContext" . }}
+      containers:
+        - name: mcmtp
+
+          image: {{ .Values.mcmtp.deployment.image.repository }}:{{ .Values.mcmtp.deployment.image.tag }}
+          imagePullPolicy: {{ .Values.mcmtp.deployment.image.imagePullPolicy }}
+
+          {{- if .Values.debug.diagnoseMode.mcmtp.enabled }}
+          command: {{- toYaml .Values.debug.diagnoseMode.mcmtp.command  | nindent 12 }}
+          {{- end }}
+
+          {{- if .Values.mcmtp.deployment.resources }}
+          resources: {{- toYaml .Values.mcmtp.deployment.resources | nindent 12 }}
+          {{- end }}
+
+          {{- define "mcmtp.containerSecurityContext" }}
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+            capabilities:
+            drop: [ALL]
+          {{- end }}
+          {{- include "mcmtp.containerSecurityContext" . }}
+
+          {{- define "mcmtp.volumeMounts" }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/mcmtp/config.json
+              subPath: config.json
+              readOnly: true
+          {{- end }}
+          {{- include "mcmtp.volumeMounts" . }}
+
+      {{- define "mcmtp.volumes" }}
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ template "mcmtp.secret" . }}
+      {{- end }}
+      {{- include "mcmtp.volumes" . }}
+
+      imagePullSecrets:
+      {{- if .Values.pullSecret.data }}
+        - name: {{ template "mcmtp.basename" . }}-pull-secret
+      {{- end }}
