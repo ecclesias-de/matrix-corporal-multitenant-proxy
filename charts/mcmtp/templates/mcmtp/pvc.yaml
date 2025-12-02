@@ -1,0 +1,19 @@
+{{- if not .Values.mcmtp.persistence.existingPvc -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "mcmtp.basename" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "mcmtp.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.mcmtp.persistence.accessMode }}
+  {{- with .Values.mcmtp.persistence.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.mcmtp.persistence.storageClassName }}
+  storageClassName: {{ .Values.mcmtp.persistence.storageClassName }}
+  {{- end}}
+{{- end }}
+
