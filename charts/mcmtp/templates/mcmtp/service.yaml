@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mcmtp.basename" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "mcmtp.labels" . | nindent 4 }}
+    {{- if .Values.mcmtp.service.labels }}
+    {{ .Values.mcmtp.service.labels | toYaml | nindent 4 }}
+    {{- end }}
+spec:
+  type: ClusterIP
+  # clusterIP: None
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 3000
+  selector: {{- include "mcmtp.matchLabels" . | nindent 4 }}
+

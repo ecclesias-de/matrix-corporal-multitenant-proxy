@@ -1,0 +1,40 @@
+mcmtp:
+  deployment:
+    replicas: 1
+    image:
+      repository: registry.rz1.metaways.net/devops/mcmtp
+      tag: 1.0.0-rc3
+      imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        memory: "50M"
+      requests:
+        cpu: 50m
+        memory: "50M"
+  service:
+    labels:
+  ingress:
+    enabled: true
+    hostname: REQUIRED
+    annotations: 
+      kubernetes.io/tls-acme: "true"
+  persistence:
+    accessMode: ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Mi
+    storageClassName:
+    existingPvc:
+
+pullSecret:
+  data: #OPTIONAL
+
+debug:
+  diagnoseMode:
+    mcmtp:
+      enabled: false
+      command: [tail, -f, /dev/null]
+
+metadata:
+  team: REQUIRED
+  name: matrix-corporal-multitenant-proxy

@@ -1,0 +1,27 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+stages:
+  - test
+  - package
+
+include:
+  - component: $CI_SERVER_FQDN/gitlabci-components/image-build-multiplatform/build@1.0.2
+    inputs:
+      name: mcmtp
+      platform:
+        - linux/amd64
+      image_repos:
+        - registry.rz1.metaways.net/devops
+  - component: $CI_SERVER_FQDN/gitlabci-components/helm-build/build@1.2.1
+    inputs:
+      name: mcmtp
+
+test:
+  stage: test
+  image: golang:1.24.3
+  script:
+    - go test -v ./...
