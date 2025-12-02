@@ -51,6 +51,9 @@ spec:
 
           {{- define "mcmtp.volumeMounts" }}
           volumeMounts:
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mcmtp
             - name: config
               mountPath: /etc/mcmtp/config.json
               subPath: config.json
@@ -60,6 +63,9 @@ spec:
 
       {{- define "mcmtp.volumes" }}
       volumes:
+        - name: data
+          persistentVolumeClaim:
+              claimName: {{ template "mcmtp.pvc" . }}
         - name: config
           secret:
             secretName: {{ template "mcmtp.secret" . }}

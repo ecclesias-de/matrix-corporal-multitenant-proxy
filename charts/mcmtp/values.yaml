@@ -1,4 +1,9 @@
 mcmtp:
+  config:
+    listenAddress: 0.0.0.0:3000
+    storagePath: /var/lib/mcmtp
+    reconcileRetryInterval: 30
+    instances: [] # min one instance is required
   deployment:
     replicas: 1
     image:
