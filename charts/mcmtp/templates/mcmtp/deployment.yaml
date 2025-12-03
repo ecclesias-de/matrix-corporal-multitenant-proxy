@@ -39,13 +39,20 @@ spec:
           resources: {{- toYaml .Values.mcmtp.deployment.resources | nindent 12 }}
           {{- end }}
 
+          {{- define "mcmtp.env" }}
+          env:
+          - name: MCMTP_CONFIG_PATH
+            value: "/etc/mcmtp/config.json"
+          {{- end }}
+          {{- include "mcmtp.env" . }}
+
           {{- define "mcmtp.containerSecurityContext" }}
           securityContext:
             runAsNonRoot: true
             readOnlyRootFilesystem: false
             allowPrivilegeEscalation: false
             capabilities:
-            drop: [ALL]
+              drop: [ALL]
           {{- end }}
           {{- include "mcmtp.containerSecurityContext" . }}
 

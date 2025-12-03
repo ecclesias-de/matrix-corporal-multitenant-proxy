@@ -12,4 +12,3 @@ RUN go build cmd/corporal-multitenant-proxy.go
 FROM scratch
 COPY --from=builder /app/corporal-multitenant-proxy /mcmtp
 ENTRYPOINT ["/mcmtp"]
-CMD ["--config" "/etc/mcmtp/config.json"]
