@@ -30,7 +30,7 @@ func Bootstrap(config config.Config) []Service {
 		}
 		instanceRepository.AddInstance(instanceConfig.HomeServerName, instance)
 
-		reconciler := reconcile.NewReconciler(instance, time.Millisecond*time.Duration(config.ReconcileRetryInterval))
+		reconciler := reconcile.NewReconciler(instance, time.Second*time.Duration(config.ReconcileRetryInterval))
 		services = append(services, reconciler)
 	}
 
