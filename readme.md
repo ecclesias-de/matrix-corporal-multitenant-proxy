@@ -1,7 +1,7 @@
 # matrix corporal multitenant proxy
 
 ## Configuration
-Configuration can be set as env variable `MCMTP_CONFIG` or in a config file. The config will be read by default from `./config.json`. The config path can be set via cli arg `-config ` or env variable `MCMTP_CONFIG_PATH`.
+Configuration can be set as env variable `MCMTP_CONFIG` or in a config file. The config will be read by default from `./config.json`. The config path can be set via cli arg `--config ` or env variable `MCMTP_CONFIG_PATH`.
 
 The config is a json object with the following properties. Only `reconcileRetryInterval` is optional. It default values is 30s.
 ```json

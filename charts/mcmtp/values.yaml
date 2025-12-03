@@ -8,7 +8,7 @@ mcmtp:
     replicas: 1
     image:
       repository: registry.rz1.metaways.net/devops/mcmtp
-      tag: 1.0.0-rc3
+      tag: 1.0.0-rc4
       imagePullPolicy: IfNotPresent
     resources:
       limits:
@@ -30,6 +30,8 @@ mcmtp:
         storage: 10Mi
     storageClassName:
     existingPvc:
+  secrets:
+    existingSecret:
 
 pullSecret:
   data: #OPTIONAL
