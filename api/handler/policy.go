@@ -5,6 +5,7 @@ import (
 	"devture-matrix-corporal/corporal/httpapi/handler"
 	"devture-matrix-corporal/corporal/httphelp"
 	"devture-matrix-corporal/corporal/matrix"
+	"encoding/json"
 	"matrix-corporal-multitenant-proxy/instance"
 	"matrix-corporal-multitenant-proxy/mtp_policy"
 	"matrix-corporal-multitenant-proxy/reconcile"
@@ -60,8 +61,21 @@ func (me *PolicyHandler) policyPut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	bodyBytes, err := httphelp.GetRequestBody(r)
+	if err != nil {
+		logrus.Infof(`Policy Put: Failed reading request body: %s`, err.Error())
+		handler.Respond(w, http.StatusBadRequest, handler.ApiResponseError{
+			ErrorCode:    handler.ErrorCodeBadJson,
+			ErrorMessage: "Bad body payload",
+		})
+		return
+	}
+
+	logrus.Debugf(`request body: %s`, string(bodyBytes))
+
 	var policy mtp_policy.MultiTenantPolicy
-	if err := httphelp.GetJsonFromRequestBody(r, &policy); err != nil {
+	err = json.Unmarshal(bodyBytes, &policy)
+	if err != nil {
 		logrus.Infof(`Policy Put: Could not decode json: %s`, err.Error())
 		handler.Respond(w, http.StatusBadRequest, handler.ApiResponseError{
 			ErrorCode:    handler.ErrorCodeBadJson,
