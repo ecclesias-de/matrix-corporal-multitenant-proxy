@@ -4,6 +4,7 @@ mcmtp:
     storagePath: /var/lib/mcmtp
     reconcileRetryInterval: 30
     instances: [] # min one instance is required
+    logLevel: info
   deployment:
     replicas: 1
     image:

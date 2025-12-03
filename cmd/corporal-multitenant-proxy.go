@@ -12,6 +12,8 @@ import (
 )
 
 func main() {
+	logrus.SetLevel(logrus.DebugLevel)
+
 	configPath := flag.String("config", "", "configuration file to use")
 	flag.Parse()
 
@@ -19,6 +21,8 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+
+	logrus.SetLevel(config.LogLevel)
 
 	services := container.Bootstrap(config)
 

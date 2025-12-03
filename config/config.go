@@ -10,10 +10,11 @@ import (
 )
 
 type Config struct {
-	Instances              []Instance `json:"instances"`
-	ReconcileRetryInterval int        `json:"reconcileRetryInterval"`
-	ListenAddress          string     `json:"listenAddress"`
-	StoragePath            string     `json:"storagePath"`
+	Instances              []Instance   `json:"instances"`
+	ReconcileRetryInterval int          `json:"reconcileRetryInterval"`
+	ListenAddress          string       `json:"listenAddress"`
+	StoragePath            string       `json:"storagePath"`
+	LogLevel               logrus.Level `json:"LogLevel"`
 }
 
 type Instance struct {
@@ -52,15 +53,13 @@ func Load(configPath string) (Config, error) {
 }
 
 func Parse(configBytes []byte) (Config, error) {
-	var config Config
+	config := Config{
+		ReconcileRetryInterval: 30,
+		LogLevel:               4,
+	}
 
 	if err := json.Unmarshal(configBytes, &config); err != nil {
 		return Config{}, err
-	}
-
-	// set default. todo move somewhere?
-	if config.ReconcileRetryInterval == 0 {
-		config.ReconcileRetryInterval = 30
 	}
 
 	if err := Check(config); err != nil {
