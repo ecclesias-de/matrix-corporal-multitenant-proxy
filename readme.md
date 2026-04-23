@@ -38,3 +38,7 @@ A multitenant policy is a matrix corporal policy with one additional key. The `r
 * If a joined room already exists in the policy, the highest power level is used.
 * Remote users only get merged, if they already exist in the policy. Otherwise they get ignored.
 * Managed rooms get added automatically.
+
+## 
+<img src="https://erzbistum-hamburg.de/_layout/EBHH_Logo_hoch.png" alt="erzbistum-hamburg logo" width="200"/></br>
+Mit freundlicher Unterstützung vom Erzbistum Hamburg
