@@ -37,6 +37,7 @@ func TestPolicyPut(t *testing.T) {
 	correctPolicy := `{"managedRoomIds": ["!1:a.test"], "users": [{"id":"@a:a.test", "joinedRooms": [{"roomId":"!1:a.test", "powerLevel": 10}]}], "remoteUsers": [{"id": "@a:b.test", "joinedRooms": [{"roomId": "!1:a.test", "powerLevel": 20}]}]}`
 
 	for i, expected := range []struct {
+		host          string
 		path          string
 		authorization string
 		body          string
@@ -44,30 +45,42 @@ func TestPolicyPut(t *testing.T) {
 		errorMessage  string
 	}{
 		{
+			host:         "a.test",
 			path:         "/_matrix/corporal/policy/a.test",
 			body:         correctPolicy,
 			statusCode:   http.StatusUnauthorized,
 			errorMessage: "Missing access token",
 		}, {
+			host:          "noExistentTenant.test",
 			path:          "/_matrix/corporal/policy/noExistentTenant.test",
 			body:          correctPolicy,
 			authorization: "Bearer well-known-test-token",
 			statusCode:    http.StatusNotFound,
 			errorMessage:  "Tenant not found",
 		}, {
+			host:          "a.test",
 			path:          "/_matrix/corporal/policy/a.test",
 			body:          correctPolicy,
 			authorization: "Bearer wrong-token",
 			statusCode:    http.StatusUnauthorized,
 			errorMessage:  "Bad access token",
 		}, {
+			host:          "a.test",
 			path:          "/_matrix/corporal/policy/a.test",
 			body:          "notValidJson",
 			authorization: "Bearer well-known-test-token",
 			statusCode:    http.StatusBadRequest,
 			errorMessage:  "Bad body payload",
 		}, {
+			host:          "a.test",
 			path:          "/_matrix/corporal/policy/a.test",
+			body:          correctPolicy,
+			authorization: "Bearer well-known-test-token",
+			statusCode:    http.StatusOK,
+			errorMessage:  "",
+		}, {
+			host:          "a.test",
+			path:          "/_matrix/corporal/policy",
 			body:          correctPolicy,
 			authorization: "Bearer well-known-test-token",
 			statusCode:    http.StatusOK,
@@ -76,6 +89,7 @@ func TestPolicyPut(t *testing.T) {
 		// todo: move following test cases UpdateIncomingPolicyTest? They that function. And the validated function ...
 		// no remote users
 		{
+			host:          "a.test",
 			path:          "/_matrix/corporal/policy/a.test",
 			body:          `{"managedRoomIds": ["!1:a.test"], "users": [{"id":"@a:a.test", "joinedRooms": [{"roomId":"!1:a.test", "powerLevel": 10}]}]}`,
 			authorization: "Bearer well-known-test-token",
@@ -84,6 +98,7 @@ func TestPolicyPut(t *testing.T) {
 		},
 		// no users
 		{
+			host:          "a.test",
 			path:          "/_matrix/corporal/policy/a.test",
 			body:          `{"managedRoomIds": ["!1:a.test"], "remoteUsers": [{"id": "@a:b.test", "joinedRooms": [{"roomId": "!1:a.test", "powerLevel": 20}]}]}`,
 			authorization: "Bearer well-known-test-token",
@@ -92,6 +107,7 @@ func TestPolicyPut(t *testing.T) {
 		},
 		// no joined rooms + no managed room ids
 		{
+			host:          "a.test",
 			path:          "/_matrix/corporal/policy/a.test",
 			body:          `{"users": [{"id":"@a:a.test"}], "remoteUsers": [{"id": "@a:b.test", "joinedRooms": [{"roomId": "!1:a.test", "powerLevel": 20}]}]}`,
 			authorization: "Bearer well-known-test-token",
@@ -106,6 +122,8 @@ func TestPolicyPut(t *testing.T) {
 			return
 		}
 
+		req.Host = expected.host
+
 		if expected.authorization != "" {
 			req.Header.Add("Authorization", expected.authorization)
 		}
@@ -114,7 +132,7 @@ func TestPolicyPut(t *testing.T) {
 		router.ServeHTTP(res, req)
 
 		if res.Code != expected.statusCode {
-			t.Errorf("%d: Returned wrong status code: got %v want %v", i, res.Code, expected.statusCode)
+			t.Errorf("%d: Returned wrong status code: got %v wanted %v", i, res.Code, expected.statusCode)
 		}
 
 		var apiError handler.ApiResponseError

@@ -10,18 +10,23 @@ metadata:
   {{- end }}
 spec:
   rules:
-    - host: {{ .Values.mcmtp.ingress.hostname }}
+    {{ $root := . }}
+    {{- range .Values.mcmtp.ingress.hostnames }}
+    - host: {{ . }}
       http:
         paths:
-          - path: /
+          - path: /_matrix/corporal/policy
             pathType: Prefix
             backend:
               service:
-                name: {{ include "mcmtp.basename" . }}
+                name: {{ template "mcmtp.basename" $root }}
                 port:
                   number: 80
+    {{- end }}
   tls:
+    {{- range .Values.mcmtp.ingress.hostnames }}
     - hosts:
-        - {{ .Values.mcmtp.ingress.hostname | quote }}
-      secretName: {{ printf "%s-tls" .Values.mcmtp.ingress.hostname }}
+        - {{ . | quote }}
+      secretName: {{ printf "%s-tls" . }}
+    {{- end }}
 {{- end }}
