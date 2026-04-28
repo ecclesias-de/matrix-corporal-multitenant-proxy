@@ -9,6 +9,7 @@ import (
 	"matrix-corporal-multitenant-proxy/instance"
 	"matrix-corporal-multitenant-proxy/mtp_policy"
 	"matrix-corporal-multitenant-proxy/reconcile"
+	"strings"
 
 	"net/http"
 
@@ -27,10 +28,21 @@ func NewPolicyHandler(instances instance.InstanceRepository) *PolicyHandler {
 }
 
 func (me *PolicyHandler) RegisterRoutesWithRouter(router *mux.Router) {
-	router.HandleFunc("/_matrix/corporal/policy/{tenant}", me.policyPut).Methods("PUT")
+	router.HandleFunc("/_matrix/corporal/policy/{tenant}", me.policyPutTenantInUrl).Methods("PUT")
+	router.HandleFunc("/_matrix/corporal/policy", me.policyPutTenantIsHost).Methods("PUT")
 }
 
-func (me *PolicyHandler) policyPut(w http.ResponseWriter, r *http.Request) {
+func (me *PolicyHandler) policyPutTenantInUrl(w http.ResponseWriter, r *http.Request) {
+	tenant := mux.Vars(r)["tenant"]
+	me.policyPut(w, r, tenant)
+}
+
+func (me *PolicyHandler) policyPutTenantIsHost(w http.ResponseWriter, r *http.Request) {
+	tenant := strings.Split(r.Host, ":")[0]
+	me.policyPut(w, r, tenant)
+}
+
+func (me *PolicyHandler) policyPut(w http.ResponseWriter, r *http.Request, tenant string) {
 	access_token := httphelp.GetAccessTokenFromRequest(r)
 	if access_token == "" {
 		logrus.Info(`Policy Put: missing access token`)
@@ -41,7 +53,6 @@ func (me *PolicyHandler) policyPut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tenant := mux.Vars(r)["tenant"]
 	instance := me.instances.GetInstance(tenant)
 	if instance == nil {
 		logrus.Infof(`Policy Put: tenant not found: %s`, tenant)

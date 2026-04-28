@@ -9,7 +9,7 @@ mcmtp:
     replicas: 1
     image:
       repository: registry.rz1.metaways.net/devops/mcmtp
-      tag: 1.0.0-rc5
+      tag: 1.0.0-rc6
       imagePullPolicy: IfNotPresent
     resources:
       limits:
@@ -21,7 +21,7 @@ mcmtp:
     labels:
   ingress:
     enabled: true
-    hostname: REQUIRED
+    hostnames: []
     annotations: 
       kubernetes.io/tls-acme: "true"
   persistence:
