@@ -68,6 +68,7 @@ func TestE2ESuccessSimple(t *testing.T) {
 		},
 		ReconcileRetryInterval: 30,
 		ListenAddress:          GetListenerAddr(t),
+		StoragePath:            t.TempDir(),
 	}
 	services := container.Bootstrap(config)
 	for _, service := range services {
@@ -79,7 +80,7 @@ func TestE2ESuccessSimple(t *testing.T) {
 
 	defer func() {
 		for _, service := range services {
-			err := service.Start()
+			err := service.Stop()
 			if err != nil {
 				t.Error(err)
 			}

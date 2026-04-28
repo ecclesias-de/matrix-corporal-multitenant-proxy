@@ -22,9 +22,11 @@ func GetListenerAddr(t *testing.T) string {
 		t.Fatal(err)
 	}
 
-	defer listener.Close()
+	addr := listener.Addr().String()
 
-	return listener.Addr().String()
+	listener.Close()
+
+	return addr
 }
 
 // bootstrapping matrix corporal https api, store and last seen provider
