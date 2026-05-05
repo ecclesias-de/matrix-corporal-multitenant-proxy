@@ -39,6 +39,17 @@ A multitenant policy is a matrix corporal policy with one additional key. The `r
 * Remote users only get merged, if they already exist in the policy. Otherwise they get ignored.
 * Managed rooms get added automatically.
 
+## Deployment
+There are 2 methods to integrate mcmtp:
+1. Proxy `https://<matrix server host>/_matrix/corporal/policy` to the mcmtp. And configure mcmtp to speek to matrix corporal directly. It can not speek to corporal via the proxy, as it needs to call `/_matrix/corporal/policy` on corporal
+2. Configure the client to push to `https://<mcmtp host>/_matrix/corporal/policy/<tenant>`. In this case mcmtp can speek to corporal via the normal http proxy (e.g. nginx).
+
+We currently only use method 1. As it is the only one supported by tine. Therefore method 2 is not tested in an deployment.
+
+The chart supports both methods:
+* for method 1 set `ingress.hostnames` to a list of all matrix server host names.
+* for method 2 set `ingress.hostnames` to a list containing the hostname for mcmtp.
+
 ## 
 <img src="https://erzbistum-hamburg.de/_layout/EBHH_Logo_hoch.png" alt="erzbistum-hamburg logo" width="200"/></br>
 Mit freundlicher Unterstützung vom Erzbistum Hamburg
